@@ -1,0 +1,40 @@
+<script>
+   var MAX_CHILD = 10;
+   var TREE_DEPTH = 5;
+   var nodes = [];
+   var links = [];
+   createChild(null, TREE_DEPTH, nodes, links);
+   console.log(JSON.stringify(nodes));
+   console.log(JSON.stringify(links));
+   // for (var i = 0; i < 5; i++) {
+   //    nodes.push({
+   //       id: i,
+   //       user: `user${i}`,
+   //       description: 'hello'
+   //    });
+   // }
+
+   // 创建子节点和边
+   function createChild(parent, depth, nodes, links) {
+      if (depth < 0) return;
+      var count = parent ? Math.floor(Math.random() * MAX_CHILD) : 1;
+      for (var i = 0; i < count; i++) {
+         // 创建点
+         var child = {
+            id: nodes.length,
+            user: `user${nodes.length}`,
+            description: `user${nodes.length}`
+         }
+         nodes.push(child);
+         // 创建边
+         if (parent) {
+            links.push({
+               source: child.id,
+               target: parent.id
+            });
+         }
+         // 递归
+         createChild(child, depth - 1, nodes, links);
+      }
+   }
+</script>
