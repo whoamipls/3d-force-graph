@@ -1,0 +1,262 @@
+<html>
+<head>
+   <!-- 中文乱码 -->
+   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+   <!-- 参考css -->
+   <link rel="stylesheet" type="text/css" href="css/index.css">
+   <link href="./static/css/app.0eb264d4e7367b563ece694ff8f658be.css" rel="stylesheet">
+   <!-- <script type="text/javascript" charset="utf-8" async="" src="./static/js/1.0de97fe393c66b61eaae.js"></script> -->
+   <style>
+      body {
+         margin: 0;
+      }
+
+      /* elementui menu */
+      .el-menu-vertical-demo:not(.el-menu--collapse) {
+         width: 200px;
+         min-height: 400px;
+      }
+   </style>
+   <link rel="stylesheet" type="text/css" href="css/normalize.css" />
+   <link rel="stylesheet" type="text/css" href="css/default.css">
+   <!-- <script src="//unpkg.com/3d-force-graph"></script> -->
+   <script src="../../dist/3d-force-graph.js"></script>
+   <!--vue elementui-->
+   <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+   <script src="//unpkg.com/vue/dist/vue.js"></script>
+   <script src="//unpkg.com/element-ui@2.9.1/lib/index.js"></script>
+   <link rel="stylesheet" href="https://unpkg.com/element-ui@2.9.1/lib/theme-chalk/index.css" type="text/css" />
+</head>
+
+<body>
+   <div id="app">
+      <div data-v-72781316 class="index-container">
+         <!-- 标题区 -->
+         <div data-v-72781316 class="title-container">
+            <div data-v-72781316 class="logo">
+               <img data-v-72781316 src="./static/image/logo1_t.png">
+            </div>
+            <div data-v-72781316 id="search">
+               <el-input placeholder="Type something" prefix-icon="el-icon-search">
+               </el-input>
+            </div>
+         </div>
+         <div data-v-72781316 class="visulization-container">
+            <!-- 左侧菜单区 -->
+            <div data-v-72781316 class="src-container">
+               <ul data-v-72781316="">
+                  <li data-v-72781316="" class="">
+                     人工智能
+                  </li>
+                  <li data-v-72781316="" class="">
+                     区块链
+                  </li>
+                  <li data-v-72781316="" class="">
+                     光电空间
+                  </li>
+                  <li data-v-72781316="" class="">
+                     海洋科技
+                  </li>
+                  <li data-v-72781316="" class="active">
+                     新能源
+                  </li>
+                  <li data-v-72781316="" class="">
+                     核电
+                  </li>
+                  <li data-v-72781316="" class="">
+                     生命与健康
+                  </li>
+                  <li data-v-72781316="" class="">
+                     先进材料
+                  </li>
+                  <li data-v-72781316="" class="">
+                     生态环境
+                  </li>
+                  <li data-v-72781316="" class="">
+                     化学键能
+                  </li>
+                  <li data-v-72781316="" class="">
+                     人造光源
+                  </li>
+                  <li data-v-72781316="" class="">
+                     量子通讯
+                  </li>
+                  <li data-v-72781316="" class="">
+                     超级光栅
+                  </li>
+               </ul>
+
+            </div>
+            <!-- 下部菜单区 -->
+            <div data-v-72781316 class="middle-container">
+               <div data-v-72781316 class="main-visualization">
+                  <div id="starrysky" class="htmleaf-container">
+                     <div id="3d-graph" class="htmleaf-container"></div>
+                  </div>
+               </div>
+               <ul data-v-72781316 class="menu-container">
+                  <li data-v-72781316="" name="t_ods_las_nstl_value" class="" style="background-color: rgb(200, 57, 229);">
+                     论文
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_information" class="" style="background-color: rgb(255, 87, 34);">
+                     资讯
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_standard" class="" style="background-color: rgb(33, 150, 243);">
+                     标准
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_report" class="" style="background-color: rgb(103, 58, 183);">
+                     报告
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_subject" class="" style="background-color: rgb(77, 185, 179);">
+                     主题
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_researcher" class="" style="background-color: rgb(255, 152, 0);">
+                     学者
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_institution" class="" style="background-color: rgb(139, 195, 74);">
+                     机构
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_collection" class="" style="background-color: rgb(233, 30, 99);">
+                     期刊
+                  </li>
+                  <li data-v-72781316="" name="t_ods_las_nstl_value_patten" class="" style="background-color: rgb(3, 169, 244);">
+                     专利
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_project" class="" style="background-color: rgb(255, 193, 7);">
+                     项目
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_conference" class="" style="background-color: rgb(174, 0, 8);">
+                     会议
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- vue -->
+   <script type="text/javascript">
+      var vm = new Vue({
+         el: '#app'
+      });
+   </script>
+   <!-- 星空背景 -->
+   <script src="dist/jquery-2.1.0.min.js"></script>
+   <script src="dist/jquery-starfield.js"></script>
+   <script>
+      $('#starrysky').starfield({
+         starDensity: 0.5,
+         mouseScale: 0.1,
+         seedMovement: true
+      });
+   </script>
+   <!-- 星空数据 -->
+   <script>
+      let highlightNodes = [];
+      let highlightLinks = [];
+
+      const elem = document.getElementById('3d-graph');
+      const Graph = ForceGraph3D()(elem)
+         .jsonUrl('../datasets/blocks.json')
+         .nodeAutoColorBy('user')
+         .nodeLabel(node => `${node.user}: ${node.description}`)
+         // .nodeColor(node => {
+         //    // if (highlightNodes.indexOf(node) === -1) {
+         //    //    return node.oldColor ? node.oldColor : node.nodeColor;
+         //    //    // return 'rgba(0,255,255,0.6)';
+         //    // } else {
+         //    //    node.oldColor = node.nodeColor;
+         //    //    return 'rgb(255,0,0,1)';
+         //    // }
+         //    return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
+         // })
+         .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
+         .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
+         .linkDirectionalParticleWidth(4)
+         // .onNodeHover(node => {
+         //    if (highlightNodes.indexOf(node) !== -1) return;// no state change
+         //    reset_nodes();
+         //    highlightNodes = node ? [node] : [];
+         //    highlight_nodes();
+         //    updateGeometries();
+         // })
+         .onNodeHover(node => {
+            if (highlightNodes.indexOf(node) !== -1) return;// no state change
+            // 还原
+            reset_nodes();
+            highlightLinks = [];
+            // 高亮
+            var i = node;
+            while (i) {
+               highlightNodes.push(i);
+               if (!i.link) break;
+               highlightLinks.push(i.link);
+               if (!i.link.target || i === i.link.target) break;
+               i = i.link.target;
+            }
+            highlight_nodes();
+            updateGeometries();
+         })
+         .onLinkHover(link => {
+            if (highlightLinks.indexOf(link) !== -1) return;
+            highlightLinks = link ? [link] : [];// 边
+            reset_nodes();
+            highlightNodes = link ? [link.source, link.target] : [];// 首尾点
+            highlight_nodes();
+            updateGeometries();
+         })
+      // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
+      // .onNodeClick(node => window.open(`https://bl.ocks.org/${node.user}/${node.id}`, '_blank'));
+
+      // 高亮
+      function highlight_nodes() {
+         highlightNodes.forEach(node => {
+            node.oldColor = node.color;
+            node.color = 'rgb(255,0,0,1)';
+         });
+      }
+
+      // 重置
+      function reset_nodes() {
+         highlightNodes.forEach(node => node.color = node.oldColor);
+         highlightNodes = [];
+      }
+
+      function updateGeometries() {
+         Graph.nodeRelSize(4); // trigger update of 3d objects in scene
+      }
+   </script>
+</body>
+</html>
+
+<!-- <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" :collapse="false">
+               <el-submenu index="1">
+                  <template slot="title">
+                     <i class="el-icon-location"></i>
+                     <span slot="title">Navigator One</span>
+                  </template>
+                  <el-menu-item-group>
+                     <span slot="title">Group One</span>
+                     <el-menu-item index="1-1">item one</el-menu-item>
+                     <el-menu-item index="1-2">item two</el-menu-item>
+                  </el-menu-item-group>
+                  <el-menu-item-group title="Group Two">
+                     <el-menu-item index="1-3">item three</el-menu-item>
+                  </el-menu-item-group>
+                  <el-submenu index="1-4">
+                     <span slot="title">item four</span>
+                     <el-menu-item index="1-4-1">item one</el-menu-item>
+                  </el-submenu>
+               </el-submenu>
+               <el-menu-item index="2">
+                  <i class="el-icon-menu"></i>
+                  <span slot="title">Navigator Two</span>
+               </el-menu-item>
+               <el-menu-item index="3" disabled>
+                  <i class="el-icon-document"></i>
+                  <span slot="title">Navigator Three</span>
+               </el-menu-item>
+               <el-menu-item index="4">
+                  <i class="el-icon-setting"></i>
+                  <span slot="title">Navigator Four</span>
+               </el-menu-item>
+            </el-menu> -->

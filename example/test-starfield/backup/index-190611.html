@@ -1,0 +1,169 @@
+<head>
+   <style>
+      body {
+         margin: 0;
+      }
+
+      .index-container {
+         display: flex;
+         -webkit-box-orient: vertical;
+         -webkit-box-direction: normal;
+         flex-flow: column;
+         flex-direction: column;
+         flex-wrap: initial;
+      }
+
+      .title-container {
+         display: flex;
+         color: white;
+         padding: 15px 24px;
+         -webkit-box-pack: justify;
+         justify-content: space-between;
+         position: fixed;
+         left: 0;
+         right: 0;
+         z-index: 1111;
+         pointer-events: none;
+      }
+
+      .logo-container img {
+         pointer-events: auto;
+         cursor: pointer;
+         width: 25vw;
+         max-width: 250px;
+         min-width: 150px;
+      }
+
+      img {
+         border-style: none;
+      }
+
+      #search {
+         position: absolute;
+         left: 280px;
+         top: 25px;
+         width: 250px;
+         margin: auto;
+         pointer-events: auto;
+      }
+   </style>
+   <link rel="stylesheet" type="text/css" href="css/normalize.css" />
+   <link rel="stylesheet" type="text/css" href="css/default.css">
+   <!-- <script src="//unpkg.com/3d-force-graph"></script> -->
+   <script src="../../dist/3d-force-graph.js"></script>
+   <!--vue elementui-->
+   <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+   <script src="//unpkg.com/vue/dist/vue.js"></script>
+   <script src="//unpkg.com/element-ui@2.9.1/lib/index.js"></script>
+   <link rel="stylesheet" href="https://unpkg.com/element-ui@2.9.1/lib/theme-chalk/index.css" type="text/css" />
+</head>
+
+<body>
+   <div id="app">
+      <div class="index-container">
+         <div class="title-container">
+            <div class="logo-container">
+               <img src="./static/image/logo1_t.png">
+               <el-button type="primary">Primary</el-button>
+            </div>
+            <el-input id="search" placeholder="Type something" prefix-icon="el-icon-search" v-model="">
+            </el-input>
+         </div>
+         <div id="starrysky" class="htmleaf-container">
+            <div id="3d-graph" class="htmleaf-container"></div>
+         </div>
+      </div>
+   </div>
+   <!-- vue -->
+   <script type="text/javascript">
+      var vm = new Vue({
+         el: '#vue_det'
+      });
+   </script>
+   <!-- 星空背景 -->
+   <script src="dist/jquery-2.1.0.min.js"></script>
+   <script src="dist/jquery-starfield.js"></script>
+   <script>
+      $('#starrysky').starfield({
+         starDensity: 0.5,
+         mouseScale: 0.1,
+         seedMovement: true
+      });
+   </script>
+   <!-- 星空数据 -->
+   <script>
+      let highlightNodes = [];
+      let highlightLinks = [];
+
+      const elem = document.getElementById('3d-graph');
+      const Graph = ForceGraph3D()(elem)
+         .jsonUrl('../datasets/blocks.json')
+         .nodeAutoColorBy('user')
+         .nodeLabel(node => `${node.user}: ${node.description}`)
+         // .nodeColor(node => {
+         //    // if (highlightNodes.indexOf(node) === -1) {
+         //    //    return node.oldColor ? node.oldColor : node.nodeColor;
+         //    //    // return 'rgba(0,255,255,0.6)';
+         //    // } else {
+         //    //    node.oldColor = node.nodeColor;
+         //    //    return 'rgb(255,0,0,1)';
+         //    // }
+         //    return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
+         // })
+         .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
+         .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
+         .linkDirectionalParticleWidth(4)
+         // .onNodeHover(node => {
+         //    if (highlightNodes.indexOf(node) !== -1) return;// no state change
+         //    reset_nodes();
+         //    highlightNodes = node ? [node] : [];
+         //    highlight_nodes();
+         //    updateGeometries();
+         // })
+         .onNodeHover(node => {
+            if (highlightNodes.indexOf(node) !== -1) return;// no state change
+            // 还原
+            reset_nodes();
+            highlightLinks = [];
+            // 高亮
+            var i = node;
+            while (i) {
+               highlightNodes.push(i);
+               if (!i.link) break;
+               highlightLinks.push(i.link);
+               if (!i.link.target || i === i.link.target) break;
+               i = i.link.target;
+            }
+            highlight_nodes();
+            updateGeometries();
+         })
+         .onLinkHover(link => {
+            if (highlightLinks.indexOf(link) !== -1) return;
+            highlightLinks = link ? [link] : [];// 边
+            reset_nodes();
+            highlightNodes = link ? [link.source, link.target] : [];// 首尾点
+            highlight_nodes();
+            updateGeometries();
+         })
+      // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
+      // .onNodeClick(node => window.open(`https://bl.ocks.org/${node.user}/${node.id}`, '_blank'));
+
+      // 高亮
+      function highlight_nodes() {
+         highlightNodes.forEach(node => {
+            node.oldColor = node.color;
+            node.color = 'rgb(255,0,0,1)';
+         });
+      }
+
+      // 重置
+      function reset_nodes() {
+         highlightNodes.forEach(node => node.color = node.oldColor);
+         highlightNodes = [];
+      }
+
+      function updateGeometries() {
+         Graph.nodeRelSize(4); // trigger update of 3d objects in scene
+      }
+   </script>
+</body>

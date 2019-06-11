@@ -1,0 +1,474 @@
+<!doctype html>
+<html>
+<head>
+   <meta name="content-type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="apple-mobile-web-app-capable" content="yes">
+   <meta name="mobile-web-app-capable" content="yes">
+   <meta name="renderer" content="webkit">
+   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+   <link rel="icon" href="./static/image/logo2.png">
+   <meta name="theme-color" content="#495060">
+   <title>大数据探索发现平台</title>
+   <meta name="keywords" content="dolphinBi">
+   <meta name="description" content="dolphinBi">
+   <link href="./static/css/app.0eb264d4e7367b563ece694ff8f658be.css" rel="stylesheet">
+   <script type="text/javascript" charset="utf-8" async="" src="./static/js/1.0de97fe393c66b61eaae.js"></script>
+   <style type="text/css">
+      .loader[data-v-72781316] {
+         position: absolute;
+         left: 0;
+         right: 0;
+         top: 0;
+         bottom: 0;
+         width: 100px;
+         height: 50px;
+         color: white;
+         margin: auto;
+         font-size: 14px;
+         text-align: center;
+      }
+
+      .index-container[data-v-72781316] {
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         -webkit-box-orient: vertical;
+         -webkit-box-direction: normal;
+         -ms-flex-flow: column;
+         flex-flow: column;
+      }
+
+      .visulization-container[data-v-72781316] {
+         position: relative;
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         height: 100vh;
+      }
+
+      .menu-container[data-v-72781316] {
+         position: absolute;
+         left: 0;
+         right: 0;
+         bottom: -1px;
+         background: none;
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         -webkit-box-pack: center;
+         -ms-flex-pack: center;
+         justify-content: center;
+         text-align: center;
+      }
+
+      .menu-container li[data-v-72781316] {
+         list-style: none;
+         color: rgba(255, 255, 255, .9);
+         padding: 10px 0;
+         -webkit-box-flex: 1;
+         -ms-flex: 1;
+         flex: 1;
+         font-size: 14px;
+         line-height: 1;
+         white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         font-weight: bold;
+         cursor: pointer;
+         -webkit-transition: all .2s ease-in-out;
+         transition: all .2s ease-in-out;
+         -webkit-user-select: none;
+         -moz-user-select: none;
+         -ms-user-select: none;
+         user-select: none;
+         opacity: .6;
+         border: 1px solid rgba(255, 255, 255, 0);
+         position: relative;
+      }
+
+      .menu-container li[data-v-72781316]:hover,
+      .menu-container li.active[data-v-72781316] {
+         opacity: .8;
+         color: rgba(255, 255, 255, 1);
+         text-shadow: 0 0 20px #000;
+         border: 1px solid rgba(255, 255, 255, 1)
+      }
+
+      .menu-container li.active[data-v-72781316]:before {
+         content: '.';
+         position: absolute;
+         top: -6px;
+         left: calc(50% - 1px);
+      }
+
+      .title-container[data-v-72781316] {
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         color: white;
+         padding: 15px 24px;
+         -webkit-box-pack: justify;
+         -ms-flex-pack: justify;
+         justify-content: space-between;
+         position: fixed;
+         left: 0;
+         right: 0;
+         z-index: 1111;
+         pointer-events: none;
+      }
+
+      .logo img[data-v-72781316] {
+         pointer-events: auto;
+         cursor: pointer;
+         width: 25vw;
+         max-width: 250px;
+         min-width: 150px;
+      }
+
+      .button[data-v-72781316] {
+         text-align: center;
+      }
+
+      .button>div[data-v-72781316] {
+         pointer-events: auto;
+         cursor: pointer;
+         display: inline-block;
+         text-shadow: 0 0 5px #000;
+         position: relative;
+      }
+
+      .button>div.active[data-v-72781316]:before {
+         content: '.';
+         position: absolute;
+         top: -12px;
+         left: calc(50% - 3px);
+         font-weight: bold;
+      }
+
+      .button>div+div[data-v-72781316] {
+         margin-left: 20px;
+      }
+
+      #search[data-v-72781316] {
+         position: absolute;
+         left: 280px;
+         top: 25px;
+         width: 250px;
+         margin: auto;
+         pointer-events: auto;
+      }
+
+      .toggle[data-v-72781316] {
+         padding: 5px;
+      }
+
+      .middle-container[data-v-72781316] {
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         -webkit-box-orient: vertical;
+         -webkit-box-direction: normal;
+         -ms-flex-direction: column;
+         flex-direction: column;
+         width: -webkit-fill-available;
+      }
+
+      .main-visualization[data-v-72781316] {
+         -webkit-box-flex: 1;
+         -ms-flex: 1;
+         flex: 1;
+         position: relative;
+      }
+
+      .src-container[data-v-72781316] {
+         position: absolute;
+         bottom: 120px;
+         top: 120px;
+         -webkit-box-pack: center;
+         -ms-flex-pack: center;
+         justify-content: center;
+         display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         -webkit-box-orient: vertical;
+         -webkit-box-direction: normal;
+         -ms-flex-direction: column;
+         flex-direction: column;
+         -webkit-transition: all .3s ease-in-out;
+         transition: all .3s ease-in-out;
+         z-index: 1;
+         -webkit-user-select: none;
+         -moz-user-select: none;
+         -ms-user-select: none;
+         user-select: none;
+      }
+
+      .src-container>ul[data-v-72781316] {
+         max-height: 100%;
+         overflow: auto;
+      }
+
+      .src-container li[data-v-72781316] {
+         background: #363e4f88;
+         border-top: 1px solid #363e4fff;
+         text-align: center;
+         color: rgba(255, 255, 255, .9);
+         padding: 10px 15px;
+         font-size: 14px;
+         cursor: pointer;
+         margin: 0;
+         -webkit-transition: all .2s ease-in-out;
+         transition: all .2s ease-in-out;
+         position: relative;
+      }
+
+      .src-container li[data-v-72781316]:first-child {
+         border-top: none;
+      }
+
+      .src-container li[data-v-72781316]:hover,
+      .src-container li.active[data-v-72781316] {
+         background: #363e4fd4;
+         color: rgba(255, 255, 255, 1);
+      }
+
+      .src-container li.active[data-v-72781316]:before {
+         content: '.';
+         position: absolute;
+         left: 10px;
+         top: 5px;
+         font-weight: bold;
+         vertical-align: middle;
+      }
+
+      .side-container[data-v-72781316] {
+         position: absolute;
+         top: 0;
+         bottom: 35px;
+         left: 100%;
+         width: 360px;
+         padding: 80px 20px 0 20px;
+         background: rgba(0, 0, 0, .4);
+         -webkit-transition: all 0.5s ease-in-out;
+         transition: all 0.5s ease-in-out;
+         -webkit-backdrop-filter: blur(4px);
+         backdrop-filter: blur(4px);
+      }
+
+      .side-container.active[data-v-72781316] {
+         -webkit-transform: translate3d(-360px, 0, 0);
+         transform: translate3d(-360px, 0, 0);
+      }
+
+      .side-visualization[data-v-72781316] {
+         height: 33%;
+         overflow: hidden;
+      }
+
+      iframe[data-v-72781316] {
+         width: 100%;
+         height: 100%;
+         /* test height should auto size*/
+      }
+
+      @media (max-width: 945px) {
+         #search[data-v-72781316] {
+            left: 30vw;
+            right: 300px;
+            width: auto;
+         }
+      }
+
+      @media (max-width: 600px) {
+         #search[data-v-72781316] {
+            left: auto;
+            right: 30px;
+            top: 60px;
+            width: 140px;
+         }
+
+         .button span[data-v-72781316] {
+            display: none
+         }
+      }
+
+      @media (max-width: 499px) {
+         .side-container[data-v-72781316] {
+            width: 100%;
+            background: rgba(0, 0, 0, .4);
+         }
+
+         .side-container.active[data-v-72781316] {
+            -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0);
+         }
+
+         .src-container.active[data-v-72781316] {
+            -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0);
+         }
+
+         .toggle[data-v-72781316] {
+            font-size: 20px !important;
+         }
+
+         #search[data-v-72781316] {
+            left: auto;
+            right: 30px;
+            top: 50px;
+            width: 100px;
+         }
+
+         .button>div+div[data-v-72781316] {
+            margin-left: 10px;
+         }
+      }
+   </style>
+   <style type="text/css">
+   </style>
+   <style type="text/css">
+   </style>
+   <style type="text/css">
+   </style>
+</head>
+<body>
+   <div id="app">
+      <div data-v-72781316="" class="index-container">
+         <div data-v-72781316="" class="title-container">
+            <div data-v-72781316="" class="logo"><img data-v-72781316="" src="/static/image/logo1_t.png"></div>
+            <div data-v-72781316="" class="button">
+               <div data-v-72781316="" class="active"><i data-v-72781316="" class="toggle ivu-icon ivu-icon-grid" style="font-size: 30px;"></i> <br data-v-72781316=""><span data-v-72781316="">知识网络探索</span></div>
+               <div data-v-72781316="" class=""><i data-v-72781316="" class="toggle ivu-icon ivu-icon-earth" style="font-size: 30px;"></i> <br data-v-72781316=""><span data-v-72781316="">地理分布探索</span></div>
+               <div data-v-72781316=""><i data-v-72781316="" class="toggle ivu-icon ivu-icon-stats-bars" style="font-size: 30px;"></i> <br data-v-72781316=""><span data-v-72781316="">显示统计信息</span></div>
+               <div data-v-72781316="" class="ivu-input-wrapper ivu-input-type" id="search">
+                  <!---->
+                  <!----> <i class="ivu-icon ivu-icon-load-c ivu-load-loop ivu-input-icon ivu-input-icon-validate"></i> <input autocomplete="off" spellcheck="false" type="text" placeholder="搜索网络节点" class="ivu-input">
+                  <!---->
+               </div>
+            </div>
+         </div>
+         <div data-v-72781316="" class="visulization-container">
+            <div data-v-72781316="" class="src-container">
+               <ul data-v-72781316="">
+                  <li data-v-72781316="" class="">
+                     人工智能
+                  </li>
+                  <li data-v-72781316="" class="">
+                     区块链
+                  </li>
+                  <li data-v-72781316="" class="">
+                     光电空间
+                  </li>
+                  <li data-v-72781316="" class="">
+                     海洋科技
+                  </li>
+                  <li data-v-72781316="" class="active">
+                     新能源
+                  </li>
+                  <li data-v-72781316="" class="">
+                     核电
+                  </li>
+                  <li data-v-72781316="" class="">
+                     生命与健康
+                  </li>
+                  <li data-v-72781316="" class="">
+                     先进材料
+                  </li>
+                  <li data-v-72781316="" class="">
+                     生态环境
+                  </li>
+                  <li data-v-72781316="" class="">
+                     化学键能
+                  </li>
+                  <li data-v-72781316="" class="">
+                     人造光源
+                  </li>
+                  <li data-v-72781316="" class="">
+                     量子通讯
+                  </li>
+                  <li data-v-72781316="" class="">
+                     超级光栅
+                  </li>
+               </ul>
+            </div>
+            <div data-v-72781316="" class="middle-container">
+               <div data-v-72781316="" class="main-visualization"><iframe data-v-72781316="" allowfullscreen="allowfullscreen" scrolling="no" frameborder="0" src="/static/relation.html?/static/新能源/新能源.json"></iframe>
+                  <!---->
+               </div>
+               <ul data-v-72781316="" class="menu-container">
+                  <li data-v-72781316="" name="t_ods_las_nstl_value" class="" style="background-color: rgb(200, 57, 229);">
+                     论文
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_information" class="" style="background-color: rgb(255, 87, 34);">
+                     资讯
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_standard" class="" style="background-color: rgb(33, 150, 243);">
+                     标准
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_report" class="" style="background-color: rgb(103, 58, 183);">
+                     报告
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_subject" class="" style="background-color: rgb(77, 185, 179);">
+                     主题
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_researcher" class="" style="background-color: rgb(255, 152, 0);">
+                     学者
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_institution" class="" style="background-color: rgb(139, 195, 74);">
+                     机构
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_collection" class="" style="background-color: rgb(233, 30, 99);">
+                     期刊
+                  </li>
+                  <li data-v-72781316="" name="t_ods_las_nstl_value_patten" class="" style="background-color: rgb(3, 169, 244);">
+                     专利
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_project" class="" style="background-color: rgb(255, 193, 7);">
+                     项目
+                  </li>
+                  <li data-v-72781316="" name="t_dm_las_nstl_conference" class="" style="background-color: rgb(174, 0, 8);">
+                     会议
+                  </li>
+               </ul>
+            </div>
+            <div data-v-72781316="" class="side-container">
+               <div data-v-72781316="" class="side-visualization">
+                  <div data-v-72781316="" style="width: 100%; height: 100%;">
+                     <p style="color: white; text-align: center; font-size: 14px; margin-top: 10px;">主题命中 Top 10</p>
+                     <div class="echarts" _echarts_instance_="ec_1560238067593" style="width: 100%; height: calc(100% - 50px); -webkit-tap-highlight-color: transparent; user-select: none; position: relative;">
+                        <div style="position: relative; overflow: hidden; width: 320px; height: 231px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="320" height="231"
+                              style="position: absolute; left: 0px; top: 0px; width: 320px; height: 231px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div>
+                        <div></div>
+                     </div>
+                  </div>
+               </div>
+               <div data-v-72781316="" class="side-visualization">
+                  <div data-v-72781316="" style="width: 100%; height: 100%;">
+                     <p style="color: white; text-align: center; font-size: 14px;">2009-2018 科研支出比例</p>
+                     <div class="echarts" _echarts_instance_="ec_1560238067594" style="width: 100%; height: 100%; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;">
+                        <div style="position: relative; overflow: hidden; width: 320px; height: 281px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="320" height="281"
+                              style="position: absolute; left: 0px; top: 0px; width: 320px; height: 281px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div>
+                        <div></div>
+                     </div>
+                  </div>
+               </div>
+               <div data-v-72781316="" class="side-visualization">
+                  <div data-v-72781316="" style="width: 100%; height: 100%;">
+                     <p style="color: white; text-align: center; font-size: 14px;">2009-2018 科研产出比例</p>
+                     <div class="echarts" _echarts_instance_="ec_1560238067595" style="width: 100%; height: 100%; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;">
+                        <div style="position: relative; overflow: hidden; width: 320px; height: 281px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="320" height="281"
+                              style="position: absolute; left: 0px; top: 0px; width: 320px; height: 281px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div>
+                        <div></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <script type="text/javascript" src="/static/js/manifest.65ad4c2234d34beb2e2f.js"></script>
+   <script type="text/javascript" src="/static/js/vendor.abb5666808c9afcfd9b0.js"></script>
+   <script type="text/javascript" src="/static/js/app.7bd8f2c354df322c4de7.js"></script>
+</body>
+</html>
