@@ -153,32 +153,15 @@
    <script>
       let highlightNodes = [];
       let highlightLinks = [];
-
       const elem = document.getElementById('3d-graph');
       const Graph = ForceGraph3D()(elem)
          .jsonUrl('../datasets/blocks.json')
+         .enableNodeDrag(false)
          .nodeAutoColorBy('user')
          .nodeLabel(node => `${node.user}: ${node.description}`)
-         // .nodeColor(node => {
-         //    // if (highlightNodes.indexOf(node) === -1) {
-         //    //    return node.oldColor ? node.oldColor : node.nodeColor;
-         //    //    // return 'rgba(0,255,255,0.6)';
-         //    // } else {
-         //    //    node.oldColor = node.nodeColor;
-         //    //    return 'rgb(255,0,0,1)';
-         //    // }
-         //    return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
-         // })
          .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
          .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
          .linkDirectionalParticleWidth(4)
-         // .onNodeHover(node => {
-         //    if (highlightNodes.indexOf(node) !== -1) return;// no state change
-         //    reset_nodes();
-         //    highlightNodes = node ? [node] : [];
-         //    highlight_nodes();
-         //    updateGeometries();
-         // })
          .onNodeHover(node => {
             if (highlightNodes.indexOf(node) !== -1) return;// no state change
             // 还原
@@ -204,8 +187,35 @@
             highlight_nodes();
             updateGeometries();
          })
+         // 选中聚焦
+         .onNodeClick(node => {
+            const distance = 50;
+            const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+            Graph.cameraPosition(
+               { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+               node, // lookAt ({ x, y, z })
+               3000  // ms transition duration
+            );
+         })
       // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
       // .onNodeClick(node => window.open(`https://bl.ocks.org/${node.user}/${node.id}`, '_blank'));
+      // .nodeColor(node => {
+      //    // if (highlightNodes.indexOf(node) === -1) {
+      //    //    return node.oldColor ? node.oldColor : node.nodeColor;
+      //    //    // return 'rgba(0,255,255,0.6)';
+      //    // } else {
+      //    //    node.oldColor = node.nodeColor;
+      //    //    return 'rgb(255,0,0,1)';
+      //    // }
+      //    return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
+      // })
+      // .onNodeHover(node => {
+      //    if (highlightNodes.indexOf(node) !== -1) return;// no state change
+      //    reset_nodes();
+      //    highlightNodes = node ? [node] : [];
+      //    highlight_nodes();
+      //    updateGeometries();
+      // })
 
       // 高亮
       function highlight_nodes() {
