@@ -33,6 +33,7 @@ const linkedFGProps = Object.assign(...[
   'nodeResolution',
   'nodeColor',
   'nodeAutoColorBy',
+  'nodeColorByType',
   'nodeOpacity',
   'nodeThreeObject',
   'nodeThreeObjectExtend',

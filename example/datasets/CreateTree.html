@@ -1,6 +1,6 @@
 <script>
    var MAX_CHILD = 10;
-   var TREE_DEPTH = 5;
+   var TREE_DEPTH = 3;
    var nodes = [];
    var links = [];
    createChild(null, TREE_DEPTH, nodes, links);
@@ -23,7 +23,8 @@
          var child = {
             id: nodes.length,
             user: `user${nodes.length}`,
-            description: `user${nodes.length}`
+            description: `user${nodes.length}`,
+            type: i % 5
          }
          nodes.push(child);
          // 创建边

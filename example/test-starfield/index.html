@@ -1,4 +1,5 @@
 <html>
+
 <head>
    <!-- 中文乱码 -->
    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -157,7 +158,8 @@
       const Graph = ForceGraph3D()(elem)
          .jsonUrl('../datasets/blocks.json')
          .enableNodeDrag(false)
-         .nodeAutoColorBy('user')
+         .nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' })
+         // .nodeAutoColorBy('user')
          .nodeLabel(node => `${node.user}: ${node.description}`)
          .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
          .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
@@ -236,6 +238,7 @@
       }
    </script>
 </body>
+
 </html>
 
 <!-- <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" :collapse="false">
