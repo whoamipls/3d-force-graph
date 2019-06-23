@@ -18,8 +18,8 @@
          min-height: 400px;
       }
    </style>
-   <link rel="stylesheet" type="text/css" href="css/normalize.css" />
-   <link rel="stylesheet" type="text/css" href="css/default.css">
+   <!-- <link rel="stylesheet" type="text/css" href="css/normalize.css" /> -->
+   <!-- <link rel="stylesheet" type="text/css" href="css/default.css"> -->
    <!-- <script src="//unpkg.com/3d-force-graph"></script> -->
    <script src="../../dist/3d-force-graph.js"></script>
    <!--vue elementui-->
@@ -46,10 +46,10 @@
             <!-- 左侧菜单区 -->
             <div data-v-72781316 class="src-container">
                <ul data-v-72781316="">
-                  <li data-v-72781316="" class="">
+                  <li data-v-72781316="" class="" onclick="openjson('')">
                      人工智能
                   </li>
-                  <li data-v-72781316="" class="">
+                  <li data-v-72781316="" class="" onclick="openjson('-less-notype')">
                      区块链
                   </li>
                   <li data-v-72781316="" class="">
@@ -96,7 +96,8 @@
                   </div>
                </div>
                <ul data-v-72781316 class="menu-container">
-                  <li data-v-72781316="" name="t_ods_las_nstl_value" class="" style="background-color: rgb(200, 57, 229);">
+                  <li data-v-72781316="" ntype="lunwen" onclick="alert(this.ntype)" name="t_ods_las_nstl_value" class=""
+                     style="background-color: rgb(200, 57, 229);">
                      论文
                   </li>
                   <li data-v-72781316="" name="t_dm_las_nstl_information" class="" style="background-color: rgb(255, 87, 34);">
@@ -152,18 +153,54 @@
    </script>
    <!-- 星空数据 -->
    <script>
+
+
+      function openjson(n) {
+         // if (n.length > 0) {
+         //    Graph.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' });
+         //    return;
+         // }
+         if (n.length == 0) {
+            Graph.jsonUrl(`../datasets/blocks${n}.json`);
+         } else {
+            Graph.nodeColor(node => {
+               var color = mapColors[node.type];
+               return color ? color : '#000000';
+            })
+         }
+      }
+      let highlightColor = '#ffffff';
+      let ignoreColor = '#111111';
+      let mapColors = {
+         0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: '#ffff00', 4: '#ff00ff'
+      }
+      let currentType = 1;
       let highlightNodes = [];
       let highlightLinks = [];
       const elem = document.getElementById('3d-graph');
       const Graph = ForceGraph3D()(elem)
          .jsonUrl('../datasets/blocks.json')
          .enableNodeDrag(false)
-         .nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' })
+         //.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' })
          // .nodeAutoColorBy('user')
          .nodeLabel(node => `${node.user}: ${node.description}`)
          .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
          .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
          .linkDirectionalParticleWidth(4)
+         .nodeColor(node => {
+            // 高亮
+            if (highlightNodes.indexOf(node) !== -1) {
+               return highlightColor;
+            } else {
+               if (currentType != null) {
+                  // 非当前类型
+                  if (currentType != node.type) {
+                     return ignoreColor;
+                  }
+               }
+            }
+            return mapColors[node.type];
+         })
          .onNodeHover(node => {
             if (highlightNodes.indexOf(node) !== -1) return;// no state change
             // 还原
@@ -202,14 +239,14 @@
       // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
       // .onNodeClick(node => window.open(`https://bl.ocks.org/${node.user}/${node.id}`, '_blank'));
       // .nodeColor(node => {
-      //    // if (highlightNodes.indexOf(node) === -1) {
-      //    //    return node.oldColor ? node.oldColor : node.nodeColor;
-      //    //    // return 'rgba(0,255,255,0.6)';
-      //    // } else {
-      //    //    node.oldColor = node.nodeColor;
-      //    //    return 'rgb(255,0,0,1)';
-      //    // }
-      //    return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
+      //    if (highlightNodes.indexOf(node) === -1) {
+      //       return node.oldColor ? node.oldColor : node.nodeColor;
+      //       // return 'rgba(0,255,255,0.6)';
+      //    } else {
+      //       node.oldColor = node.nodeColor;
+      //       return 'rgb(255,0,0,1)';
+      //    }
+      //    //return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
       // })
       // .onNodeHover(node => {
       //    if (highlightNodes.indexOf(node) !== -1) return;// no state change
