@@ -40,7 +40,8 @@
                <img data-v-72781316 src="./static/image/logo1_t.png">
             </div>
             <div data-v-72781316 id="search">
-               <el-input placeholder="search" prefix-icon="el-icon-search">
+               <el-input v-model="searchText" placeholder="搜索网络节点" @keyup.enter.native="searchNode" size="small"
+                  clearable>
                </el-input>
             </div>
          </div>
@@ -84,6 +85,7 @@
             highlightLinks: [],// 高亮边
             highlightColor: '#ffffff',// 高亮色
             ignoreColor: '#111111',// 忽略色
+            searchText: '',// 查询字符串
          },
          mounted: function () {
             let elem = document.getElementById('3d-graph');
@@ -109,6 +111,7 @@
                   let flt = this.filters.find(i => i.value == node.type);
                   return flt ? flt.bgColor : null;
                })
+
          },
          methods: {
             // 单击左侧菜单
@@ -128,6 +131,32 @@
             // 更新3D模型
             updateGeometries: function () {
                this.graph.nodeRelSize(4); // trigger update of 3d objects in scene
+            },
+            // 查询网络节点
+            searchNode: function () {
+               let node = this.graph.graphData().nodes.find(node => {
+                  if (this.activeFilter && this.activeFilter.value != node.type) return false;
+                  return node.user.indexOf(this.searchText) >= 0
+               });
+               if (node) {
+                  this.focusNode(node);
+               } else {
+                  this.$message({
+                     message: '没有找到相关节点！',
+                     type: 'warning',
+                     showClose: true
+                  });
+               }
+            },
+            // 聚集节点
+            focusNode: function (node) {
+               const distance = 50;
+               const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+               this.graph.cameraPosition(
+                  { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+                  node, // lookAt ({ x, y, z })
+                  3000  // ms transition duration
+               );
             }
          }
       });
