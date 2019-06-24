@@ -23,8 +23,8 @@
    <!-- <script src="//unpkg.com/3d-force-graph"></script> -->
    <script src="../../dist/3d-force-graph.js"></script>
    <!--vue elementui-->
-   <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
-   <script src="//unpkg.com/vue/dist/vue.js"></script>
+   <!-- <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script> -->
+   <script src="//unpkg.com/vue/dist/vue.min.js"></script>
    <script src="//unpkg.com/element-ui@2.9.1/lib/index.js"></script>
    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.9.1/lib/theme-chalk/index.css" type="text/css" />
    <!-- 自定义js -->
@@ -40,7 +40,7 @@
                <img data-v-72781316 src="./static/image/logo1_t.png">
             </div>
             <div data-v-72781316 id="search">
-               <el-input placeholder="Type something" prefix-icon="el-icon-search">
+               <el-input placeholder="search" prefix-icon="el-icon-search">
                </el-input>
             </div>
          </div>
@@ -48,7 +48,7 @@
             <!-- 左侧菜单区 -->
             <div data-v-72781316 class="src-container">
                <ul data-v-72781316="">
-                  <li data-v-72781316="" v-for="sys in systems" :class="{active:sys.value==activeSystem}" @click="systemMenuClick(sys.value)">
+                  <li data-v-72781316="" v-for="sys in systems" :class="{active:sys==activeSystem}" @click="systemMenuClick(sys)">
                      {{sys.name}}
                   </li>
                </ul>
@@ -61,8 +61,8 @@
                   </div>
                </div>
                <ul data-v-72781316 class="menu-container">
-                  <li data-v-72781316="" v-for="flt in filters" :class="{active:flt.value==activeFilter}" :style="{background:flt.bgColor}"
-                     @click="filterMenuClick(flt.value)">
+                  <li data-v-72781316="" v-for="flt in filters" :class="{active:flt==activeFilter}" :style="{background:flt.bgColor}"
+                     @click="filterMenuClick(flt)">
                      {{flt.name}}
                   </li>
                </ul>
@@ -75,17 +75,59 @@
       var vm = new Vue({
          el: '#app',
          data: {
-            systems: g_Systems,
-            activeSystem: g_Systems[0].value,
-            filters: g_Filters,
-            activeFilter: null,
+            systems: g_Systems,// 左侧菜单
+            activeSystem: g_Systems[0],// 左侧菜单活动项
+            filters: g_Filters,// 底部菜单
+            activeFilter: null,// 底部菜单活动项
+            graph: null,// 3D图形
+            highlightNodes: [],// 高亮点
+            highlightLinks: [],// 高亮边
+            highlightColor: '#ffffff',// 高亮色
+            ignoreColor: '#111111',// 忽略色
+         },
+         mounted: function () {
+            let elem = document.getElementById('3d-graph');
+            this.graph = ForceGraph3D()(elem)
+               .jsonUrl(this.activeSystem.value)
+               .enableNodeDrag(false)
+               .nodeLabel(node => `${node.user}: ${node.description}`)
+               .linkWidth(link => this.highlightLinks.indexOf(link) !== -1 ? 4 : 1)
+               .linkDirectionalParticles(link => this.highlightLinks.indexOf(link) !== -1 ? 4 : 0)
+               .linkDirectionalParticleWidth(4)
+               .nodeColor(node => {
+                  // 高亮
+                  if (this.highlightNodes.indexOf(node) !== -1) {
+                     return this.highlightColor;
+                  } else {
+                     if (this.activeFilter != null) {
+                        // 非当前类型
+                        if (this.activeFilter.value != node.type) {
+                           return this.ignoreColor;
+                        }
+                     }
+                  }
+                  let flt = this.filters.find(i => i.value == node.type);
+                  return flt ? flt.bgColor : null;
+               })
          },
          methods: {
-            systemMenuClick: function (val) {
-               this.activeSystem = val;
+            // 单击左侧菜单
+            systemMenuClick: function (sys) {
+               if (this.activeSystem == sys) return;
+               this.activeSystem = sys;
+               if (sys.value) {
+                  this.graph.jsonUrl(sys.value);
+                  this.activeFilter = null;
+               }
             },
+            // 单击底部菜单
             filterMenuClick: function (val) {
                this.activeFilter = this.activeFilter == val ? null : val;
+               this.updateGeometries();
+            },
+            // 更新3D模型
+            updateGeometries: function () {
+               this.graph.nodeRelSize(4); // trigger update of 3d objects in scene
             }
          }
       });
@@ -102,108 +144,90 @@
    </script>
    <!-- 星空数据 -->
    <script>
-      function openjson(n) {
-         // if (n.length > 0) {
-         //    Graph.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' });
-         //    return;
-         // }
-         if (n.length == 0) {
-            Graph.jsonUrl(`../datasets/blocks${n}.json`);
-         } else {
-            Graph.nodeColor(node => {
-               var color = mapColors[node.type];
-               return color ? color : '#000000';
-            })
-         }
-      }
-      let highlightColor = '#ffffff';
-      let ignoreColor = '#111111';
-      let mapColors = {
-         0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: '#ffff00', 4: '#ff00ff'
-      }
-      let currentType = null;
-      let highlightNodes = [];
-      let highlightLinks = [];
-      const elem = document.getElementById('3d-graph');
-      const Graph = ForceGraph3D()(elem)
-         .jsonUrl('../datasets/blocks.json')
-         .enableNodeDrag(false)
-         //.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' })
-         // .nodeAutoColorBy('user')
-         .nodeLabel(node => `${node.user}: ${node.description}`)
-         .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
-         .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
-         .linkDirectionalParticleWidth(4)
-         .nodeColor(node => {
-            // 高亮
-            if (highlightNodes.indexOf(node) !== -1) {
-               return highlightColor;
-            } else {
-               if (currentType != null) {
-                  // 非当前类型
-                  if (currentType != node.type) {
-                     return ignoreColor;
-                  }
-               }
-            }
-            let flt = g_Filters.find(i => i.value == node.type);
-            return flt ? flt.bgColor : null;
-            // return mapColors[node.type];
-         })
-         .onNodeHover(node => {
-            if (highlightNodes.indexOf(node) !== -1) return;// no state change
-            // 还原
-            reset_nodes();
-            highlightLinks = [];
-            // 高亮
-            var i = node;
-            while (i) {
-               highlightNodes.push(i);
-               if (!i.link) break;
-               highlightLinks.push(i.link);
-               if (!i.link.target || i === i.link.target) break;
-               i = i.link.target;
-            }
-            highlight_nodes();
-            updateGeometries();
-         })
-         .onLinkHover(link => {
-            if (highlightLinks.indexOf(link) !== -1) return;
-            highlightLinks = link ? [link] : [];// 边
-            reset_nodes();
-            highlightNodes = link ? [link.source, link.target] : [];// 首尾点
-            highlight_nodes();
-            updateGeometries();
-         })
-         // 选中聚焦
-         .onNodeClick(node => {
-            const distance = 50;
-            const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-            Graph.cameraPosition(
-               { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
-               node, // lookAt ({ x, y, z })
-               3000  // ms transition duration
-            );
-         })
-      // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
-      // .onNodeClick(node => window.open(`https://bl.ocks.org/${node.user}/${node.id}`, '_blank'));
-      // .nodeColor(node => {
-      //    if (highlightNodes.indexOf(node) === -1) {
-      //       return node.oldColor ? node.oldColor : node.nodeColor;
-      //       // return 'rgba(0,255,255,0.6)';
+      // function openjson(n) {
+      //    // if (n.length > 0) {
+      //    //    Graph.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' });
+      //    //    return;
+      //    // }
+      //    if (n.length == 0) {
+      //       Graph.jsonUrl(`../datasets/blocks${n}.json`);
       //    } else {
-      //       node.oldColor = node.nodeColor;
-      //       return 'rgb(255,0,0,1)';
+      //       Graph.nodeColor(node => {
+      //          var color = mapColors[node.type];
+      //          return color ? color : '#000000';
+      //       })
       //    }
-      //    //return highlightNodes.indexOf(node) === -1 ? 'rgba(0,255,255,0.6)' : 'rgb(255,0,0,1)'
-      // })
-      // .onNodeHover(node => {
-      //    if (highlightNodes.indexOf(node) !== -1) return;// no state change
-      //    reset_nodes();
-      //    highlightNodes = node ? [node] : [];
-      //    highlight_nodes();
-      //    updateGeometries();
-      // })
+      // }
+      // let highlightColor = '#ffffff';
+      // let ignoreColor = '#111111';
+      // let mapColors = {
+      //    0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: '#ffff00', 4: '#ff00ff'
+      // }
+      // let currentType = null;
+      // let highlightNodes = [];
+      // let highlightLinks = [];
+      // const elem = document.getElementById('3d-graph');
+      // const Graph = ForceGraph3D()(elem)
+      //    .jsonUrl('../datasets/blocks.json')
+      //    .enableNodeDrag(false)
+      //    //.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' })
+      //    // .nodeAutoColorBy('user')
+      //    .nodeLabel(node => `${node.user}: ${node.description}`)
+      //    .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
+      //    .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
+      //    .linkDirectionalParticleWidth(4)
+      //    .nodeColor(node => {
+      //       // 高亮
+      //       if (highlightNodes.indexOf(node) !== -1) {
+      //          return highlightColor;
+      //       } else {
+      //          if (currentType != null) {
+      //             // 非当前类型
+      //             if (currentType != node.type) {
+      //                return ignoreColor;
+      //             }
+      //          }
+      //       }
+      //       let flt = g_Filters.find(i => i.value == node.type);
+      //       return flt ? flt.bgColor : null;
+      //       // return mapColors[node.type];
+      //    })
+      //    .onNodeHover(node => {
+      //       if (highlightNodes.indexOf(node) !== -1) return;// no state change
+      //       // 还原
+      //       reset_nodes();
+      //       highlightLinks = [];
+      //       // 高亮
+      //       var i = node;
+      //       while (i) {
+      //          highlightNodes.push(i);
+      //          if (!i.link) break;
+      //          highlightLinks.push(i.link);
+      //          if (!i.link.target || i === i.link.target) break;
+      //          i = i.link.target;
+      //       }
+      //       highlight_nodes();
+      //       updateGeometries();
+      //    })
+      //    .onLinkHover(link => {
+      //       if (highlightLinks.indexOf(link) !== -1) return;
+      //       highlightLinks = link ? [link] : [];// 边
+      //       reset_nodes();
+      //       highlightNodes = link ? [link.source, link.target] : [];// 首尾点
+      //       highlight_nodes();
+      //       updateGeometries();
+      //    })
+      //    // 选中聚焦
+      //    .onNodeClick(node => {
+      //       const distance = 50;
+      //       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+      //       Graph.cameraPosition(
+      //          { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+      //          node, // lookAt ({ x, y, z })
+      //          3000  // ms transition duration
+      //       );
+      //    })
+
 
       // 高亮
       function highlight_nodes() {
