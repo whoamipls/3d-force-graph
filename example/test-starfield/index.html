@@ -73,6 +73,10 @@
    </div>
    <!-- vue -->
    <script type="text/javascript">
+      let highlightNodes = [];// 高亮点
+      let highlightLinks = [];// 高亮边
+      let highlightColor = '#ffffff';// 高亮色
+      let ignoreColor = '#111111';// 忽略色
       var vm = new Vue({
          el: '#app',
          data: {
@@ -81,10 +85,6 @@
             filters: g_Filters,// 底部菜单
             activeFilter: null,// 底部菜单活动项
             graph: null,// 3D图形
-            highlightNodes: [],// 高亮点
-            highlightLinks: [],// 高亮边
-            highlightColor: '#ffffff',// 高亮色
-            ignoreColor: '#111111',// 忽略色
             searchText: '',// 查询字符串
          },
          mounted: function () {
@@ -93,25 +93,29 @@
                .jsonUrl(this.activeSystem.value)
                .enableNodeDrag(false)
                .nodeLabel(node => `${node.user}: ${node.description}`)
-               .linkWidth(link => this.highlightLinks.indexOf(link) !== -1 ? 4 : 1)
-               .linkDirectionalParticles(link => this.highlightLinks.indexOf(link) !== -1 ? 4 : 0)
-               .linkDirectionalParticleWidth(4)
+               .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 2 : 1)
+               .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 2 : 0)
+               .linkDirectionalParticleWidth(2)
                .nodeColor(node => {
                   // 高亮
-                  if (this.highlightNodes.indexOf(node) !== -1) {
-                     return this.highlightColor;
+                  if (highlightNodes.indexOf(node) !== -1) {
+                     return highlightColor;
                   } else {
                      if (this.activeFilter != null) {
                         // 非当前类型
                         if (this.activeFilter.value != node.type) {
-                           return this.ignoreColor;
+                           return ignoreColor;
                         }
                      }
                   }
                   let flt = this.filters.find(i => i.value == node.type);
                   return flt ? flt.bgColor : null;
                })
-
+               .onNodeClick(node => {
+                  if (this.isNodeIgnore(node)) return;
+                  this.focusNode(node);
+                  this.highlightNode(node);
+               })
          },
          methods: {
             // 单击左侧菜单
@@ -132,14 +136,19 @@
             updateGeometries: function () {
                this.graph.nodeRelSize(4); // trigger update of 3d objects in scene
             },
+            // 点是否忽略
+            isNodeIgnore: function (node) {
+               return this.activeFilter && this.activeFilter.value != node.type;
+            },
             // 查询网络节点
             searchNode: function () {
                let node = this.graph.graphData().nodes.find(node => {
-                  if (this.activeFilter && this.activeFilter.value != node.type) return false;
+                  if (this.isNodeIgnore(node)) return false;
                   return node.user.indexOf(this.searchText) >= 0
                });
                if (node) {
                   this.focusNode(node);
+                  this.highlightNode(node);
                } else {
                   this.$message({
                      message: '没有找到相关节点！',
@@ -148,15 +157,33 @@
                   });
                }
             },
-            // 聚集节点
+            // 聚焦节点
             focusNode: function (node) {
-               const distance = 50;
+               const distance = 100;
                const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
                this.graph.cameraPosition(
                   { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
                   node, // lookAt ({ x, y, z })
                   3000  // ms transition duration
                );
+            },
+            // 高亮节点
+            highlightNode: function (node) {
+               this.highlightClear();
+               if (node.link != null) {
+                  highlightLinks.push(node.link);
+               }
+               if (node.nodes != null) {
+                  node.nodes.forEach(n => {
+                     highlightLinks.push(n.link);
+                  });
+               }
+               this.updateGeometries();
+            },
+            // 清空高亮
+            highlightClear: function () {
+               highlightNodes.length = 0;
+               highlightLinks.length = 0;
             }
          }
       });
