@@ -59,6 +59,13 @@
                <div data-v-72781316 class="main-visualization">
                   <div id="starrysky" class="htmleaf-container">
                      <div id="3d-graph" class="htmleaf-container"></div>
+                     <!-- 信息框 -->
+                     <div v-show="infoBox.show" class="infobox">
+                        <span class="close" onclick="vm.unHighlight()"></span>
+                        <span>标题信息</span>
+                        <el-divider></el-divider>
+                        <span>{{infoBox.content}}</span>
+                     </div>
                   </div>
                </div>
                <ul data-v-72781316 class="menu-container">
@@ -86,13 +93,15 @@
             activeFilter: null,// 底部菜单活动项
             graph: null,// 3D图形
             searchText: '',// 查询字符串
+            infoBox: { show: false, content: "hello" },// 是否显示信息框
          },
          mounted: function () {
             let elem = document.getElementById('3d-graph');
             this.graph = ForceGraph3D()(elem)
                .jsonUrl(this.activeSystem.value)
                .enableNodeDrag(false)
-               .nodeLabel(node => `${node.user}: ${node.description}`)
+               // .nodeLabel(node => "<div><table border=1><tr><td>hello</td></tr><tr><td>world</td></tr></table></div>")
+               .nodeLabel(node => `<div>${node.user}: ${node.description}</div>`)
                .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 2 : 1)
                .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 2 : 0)
                .linkDirectionalParticleWidth(2)
@@ -169,7 +178,7 @@
             },
             // 高亮节点
             highlightNode: function (node) {
-               this.highlightClear();
+               this.unHighlight();
                if (node.link != null) {
                   highlightLinks.push(node.link);
                }
@@ -179,11 +188,16 @@
                   });
                }
                this.updateGeometries();
+               // 显示节点信息
+               this.infoBox.content = `${node.user}: ${node.description}`;
+               this.infoBox.show = true;
             },
             // 清空高亮
-            highlightClear: function () {
+            unHighlight: function () {
                highlightNodes.length = 0;
                highlightLinks.length = 0;
+               this.updateGeometries();
+               this.infoBox.show = false;
             }
          }
       });
