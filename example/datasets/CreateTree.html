@@ -3,7 +3,7 @@
    var TREE_DEPTH = 3;
    var nodes = [];
    var links = [];
-   createChild(null, TREE_DEPTH, nodes, links);
+   createChild(null, 0, nodes, links);
    console.log(JSON.stringify(nodes));
    console.log(JSON.stringify(links));
    // for (var i = 0; i < 5; i++) {
@@ -16,7 +16,7 @@
 
    // 创建子节点和边
    function createChild(parent, depth, nodes, links) {
-      if (depth < 0) return;
+      if (depth > TREE_DEPTH) return;
       var count = parent ? Math.floor(Math.random() * MAX_CHILD) : 1;
       for (var i = 0; i < count; i++) {
          // 创建点
@@ -24,7 +24,8 @@
             id: nodes.length,
             user: `user${nodes.length}`,
             description: `user${nodes.length}`,
-            type: i % 5
+            type: i % 5,
+            level: depth
          }
          nodes.push(child);
          // 创建边
@@ -35,7 +36,7 @@
             });
          }
          // 递归
-         createChild(child, depth - 1, nodes, links);
+         createChild(child, depth + 1, nodes, links);
       }
    }
 </script>

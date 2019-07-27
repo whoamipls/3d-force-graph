@@ -21,6 +21,7 @@
    <!-- <link rel="stylesheet" type="text/css" href="css/normalize.css" /> -->
    <!-- <link rel="stylesheet" type="text/css" href="css/default.css"> -->
    <!-- <script src="//unpkg.com/3d-force-graph"></script> -->
+   <script src="//unpkg.com/three"></script><!-- 节点形状 -->
    <script src="../../dist/3d-force-graph.js"></script>
    <!--vue elementui-->
    <!-- <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script> -->
@@ -125,8 +126,71 @@
                   this.focusNode(node);
                   this.highlightNode(node);
                })
+               .nodeThreeObject(node => new THREE.Mesh(
+                  [
+                     new THREE.BoxGeometry(7, 7, 7),
+                     new THREE.ConeGeometry(7, 7),
+                     new THREE.CylinderGeometry(7, 7, 7),
+                     new THREE.DodecahedronGeometry(7),
+                     new THREE.SphereGeometry(7),
+                     new THREE.TorusGeometry(7, 2),
+                     new THREE.TorusKnotGeometry(7, 2)
+                  ][node.level % 7],
+                  new THREE.MeshLambertMaterial({
+                     color: this.getNodeColor(node),//Math.round(Math.random() * Math.pow(2, 24)),
+                     transparent: true,
+                     opacity: 0.75
+                  })
+               ))
+            // // 节点等级
+            // let setChildLevel = function (parent) {
+            //    if (parent.nodes != null) {
+            //       parent.nodes.forEach(node => {
+            //          node.level = parent.level + 1;
+            //          setChildLevel(node);
+            //       });
+            //    }
+            // }
+            // this.graph.graphData().nodes.forEach(node => {
+            //    if (!node.link) {// 根节点
+            //       node.level = 0;
+            //       setChildLevel(node);
+            //    }
+            // });
+            // 节点形状
+            // this.graph.nodeThreeObject(({ id }) => new THREE.Mesh(
+            //    [
+            //       new THREE.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
+            //       new THREE.ConeGeometry(Math.random() * 10, Math.random() * 20),
+            //       new THREE.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
+            //       new THREE.DodecahedronGeometry(Math.random() * 10),
+            //       new THREE.SphereGeometry(Math.random() * 10),
+            //       new THREE.TorusGeometry(Math.random() * 10, Math.random() * 2),
+            //       new THREE.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
+            //    ][id % 7],
+            //    new THREE.MeshLambertMaterial({
+            //       color: Math.round(Math.random() * Math.pow(2, 24)),
+            //       transparent: true,
+            //       opacity: 0.75
+            //    })
+            // ))
          },
          methods: {
+            getNodeColor: function (node) {
+               // 高亮
+               if (highlightNodes.indexOf(node) !== -1) {
+                  return highlightColor;
+               } else {
+                  if (this.activeFilter != null) {
+                     // 非当前类型
+                     if (this.activeFilter.value != node.type) {
+                        return ignoreColor;
+                     }
+                  }
+               }
+               let flt = this.filters.find(i => i.value == node.type);
+               return flt ? flt.bgColor : null;
+            },
             // 单击左侧菜单
             systemMenuClick: function (sys) {
                if (this.activeSystem == sys) return;
