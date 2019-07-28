@@ -66,6 +66,11 @@
                         <span>标题信息</span>
                         <el-divider></el-divider>
                         <span>{{infoBox.content}}</span>
+                        <el-divider></el-divider>
+                        <el-row>
+                           <el-button type="text" @click="openNode">展开节点</el-button>
+                           <el-button type="text" @click="closeNode">关闭节点</el-button>
+                        </el-row>
                      </div>
                   </div>
                </div>
@@ -95,87 +100,161 @@
             graph: null,// 3D图形
             searchText: '',// 查询字符串
             infoBox: { show: false, content: "hello" },// 是否显示信息框
+            initData: null,// 初始数据
+            filtData: null,// 过滤数据
          },
          mounted: function () {
-            let elem = document.getElementById('3d-graph');
-            this.graph = ForceGraph3D()(elem)
-               .jsonUrl(this.activeSystem.value)
-               .enableNodeDrag(false)
-               // .nodeLabel(node => "<div><table border=1><tr><td>hello</td></tr><tr><td>world</td></tr></table></div>")
-               .nodeLabel(node => `<div>${node.user}: ${node.description}</div>`)
-               .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 2 : 1)
-               .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 2 : 0)
-               .linkDirectionalParticleWidth(2)
-               .nodeColor(node => {
-                  // 高亮
-                  if (highlightNodes.indexOf(node) !== -1) {
-                     return highlightColor;
-                  } else {
-                     if (this.activeFilter != null) {
-                        // 非当前类型
-                        if (this.activeFilter.value != node.type) {
-                           return ignoreColor;
+            // this.initScene();
+            // return;
+            fetch(this.activeSystem.value).then((r) => {
+               return r.json();
+            }).then((json) => {
+               this.initData = json;
+               this.filtData = new Object();
+               this.filtData.nodes = json.nodes.filter(i => i.level < 2);
+               this.filtData.links = json.links.filter(i => this.filtData.nodes.find(j => j.id == i.source) && this.filtData.nodes.find(j => j.id == i.target));
+               //console.log(this.initData.nodes.length + "," + this.filtData.nodes.length);
+               this.initScene(this.filtData);
+            });
+         },
+         methods: {
+            // 初始化场景
+            initScene: function (json) {
+               let elem = document.getElementById('3d-graph');
+               this.graph = ForceGraph3D()(elem)
+                  .graphData(json)
+                  // .jsonUrl(this.activeSystem.value)
+                  .enableNodeDrag(false)
+                  // .nodeLabel(node => "<div><table border=1><tr><td>hello</td></tr><tr><td>world</td></tr></table></div>")
+                  .nodeLabel(node => `<div>${node.user}: ${node.description}</div>`)
+                  .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 2 : 1)
+                  .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 2 : 0)
+                  .linkDirectionalParticleWidth(2)
+                  .nodeColor(node => {
+                     // 高亮
+                     if (highlightNodes.indexOf(node) !== -1) {
+                        return highlightColor;
+                     } else {
+                        if (this.activeFilter != null) {
+                           // 非当前类型
+                           if (this.activeFilter.value != node.type) {
+                              return ignoreColor;
+                           }
+                        }
+                     }
+                     let flt = this.filters.find(i => i.value == node.type);
+                     return flt ? flt.bgColor : null;
+                  })
+                  .onNodeClick(node => {
+                     if (this.isNodeIgnore(node)) return;
+                     this.focusNode(node);
+                     this.highlightNode(node);
+                  })
+                  .nodeThreeObject(node => new THREE.Mesh(
+                     [
+                        new THREE.BoxGeometry(7, 7, 7),
+                        new THREE.ConeGeometry(7, 7),
+                        new THREE.CylinderGeometry(7, 7, 7),
+                        new THREE.DodecahedronGeometry(7),
+                        new THREE.SphereGeometry(7),
+                        new THREE.TorusGeometry(7, 2),
+                        new THREE.TorusKnotGeometry(7, 2)
+                     ][node.level % 7],
+                     new THREE.MeshLambertMaterial({
+                        color: this.getNodeColor(node),//Math.round(Math.random() * Math.pow(2, 24)),
+                        transparent: true,
+                        opacity: 0.75
+                     })
+                  ))
+            },
+            // 显示/隐藏节点
+            showNode: function (node, visible) {
+               if (!node.nodes) return;
+               node.nodes.forEach(child => {
+                  child.__threeObj.visible = visible;
+                  child.link.__lineObj.visible = visible;
+                  this.showNode(child);
+               })
+            },
+            // 打开节点
+            openNode: function () {
+               let nodeId = this.infoBox.node.id;
+               const { nodes, links } = this.graph.graphData();
+               let refLinks = this.initData.links.filter(l => l.target == nodeId || l.target.id == nodeId);
+               let refNodes = this.initData.nodes.filter(n => refLinks.find(l => l.source == n.id || l.source.id == n.id));
+               this.graph.graphData({
+                  nodes: [...nodes, ...refNodes],
+                  links: [...links, ...refLinks]
+               });
+               // let nodeId = this.infoBox.node.id;
+               // const { nodes, links } = this.graph.graphData();
+               // // nodes.forEach(i => {
+               // //    i.link = null;
+               // //    i.nodes = null;
+               // // });
+               // let refLinks = this.initData.links.filter(i => i.target == nodeId);
+               // let refNodes = this.initData.nodes.filter(i => refLinks.find(j => j.source == i.id));
+               // this.graph.graphData({
+               //    nodes: [...nodes, ...refNodes],
+               //    links: [...links, ...refLinks]
+               // });
+               // console.log(`ns=${this.initData.nodes.length},ls=${this.initData.links.length}`);
+            },
+            // 关闭节点
+            closeNode: function () {
+               // 判断是否子节点
+               let isChildNode = function (parent, child) {
+                  if (parent.id == child.id) return false;
+                  if (parent.nodes) {
+                     for (let i = 0; i < parent.nodes.length; i++) {
+                        if (parent.nodes[i].id == child.id || isChildNode(parent.nodes[i], child)) {
+                           return true;
                         }
                      }
                   }
-                  let flt = this.filters.find(i => i.value == node.type);
-                  return flt ? flt.bgColor : null;
-               })
-               .onNodeClick(node => {
-                  if (this.isNodeIgnore(node)) return;
-                  this.focusNode(node);
-                  this.highlightNode(node);
-               })
-               .nodeThreeObject(node => new THREE.Mesh(
-                  [
-                     new THREE.BoxGeometry(7, 7, 7),
-                     new THREE.ConeGeometry(7, 7),
-                     new THREE.CylinderGeometry(7, 7, 7),
-                     new THREE.DodecahedronGeometry(7),
-                     new THREE.SphereGeometry(7),
-                     new THREE.TorusGeometry(7, 2),
-                     new THREE.TorusKnotGeometry(7, 2)
-                  ][node.level % 7],
-                  new THREE.MeshLambertMaterial({
-                     color: this.getNodeColor(node),//Math.round(Math.random() * Math.pow(2, 24)),
-                     transparent: true,
-                     opacity: 0.75
-                  })
-               ))
-            // // 节点等级
-            // let setChildLevel = function (parent) {
-            //    if (parent.nodes != null) {
-            //       parent.nodes.forEach(node => {
-            //          node.level = parent.level + 1;
-            //          setChildLevel(node);
-            //       });
-            //    }
-            // }
-            // this.graph.graphData().nodes.forEach(node => {
-            //    if (!node.link) {// 根节点
-            //       node.level = 0;
-            //       setChildLevel(node);
-            //    }
-            // });
-            // 节点形状
-            // this.graph.nodeThreeObject(({ id }) => new THREE.Mesh(
-            //    [
-            //       new THREE.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
-            //       new THREE.ConeGeometry(Math.random() * 10, Math.random() * 20),
-            //       new THREE.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
-            //       new THREE.DodecahedronGeometry(Math.random() * 10),
-            //       new THREE.SphereGeometry(Math.random() * 10),
-            //       new THREE.TorusGeometry(Math.random() * 10, Math.random() * 2),
-            //       new THREE.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
-            //    ][id % 7],
-            //    new THREE.MeshLambertMaterial({
-            //       color: Math.round(Math.random() * Math.pow(2, 24)),
-            //       transparent: true,
-            //       opacity: 0.75
-            //    })
-            // ))
-         },
-         methods: {
+                  return false;
+               }
+               // 查询删除节点和边
+               let node = this.infoBox.node;
+               let { nodes, links } = this.graph.graphData();
+               let rmNodes = nodes.filter(n => isChildNode(node, n));
+               // rmNodes.forEach(n => {
+               //    delete n.link;
+               //    delete n.nodes;
+               //    delete n.__threeObj;
+               // });
+               nodes = nodes.filter(n => !rmNodes.find(r => r.id == n.id));
+               links = links.filter(l => !rmNodes.find(r => r.id == l.source.id));
+               this.graph.graphData({ nodes, links });
+               this.unHighlight();
+               // nodes = nodes.filter(n => !isChildNode(node, n));
+               // links = links.filter(l => !isChildNode(node, l.source));
+               // this.graph.graphData({ nodes, links });
+
+               // let node = this.infoBox.node;
+               // this.showNode(node, false);
+               // this.unHighlight();
+
+               // let nodeId = this.infoBox.id;
+               // let { nodes, links } = this.graph.graphData();
+               // nodes.find(n => n.id == nodeId).__threeObj.visible = false;
+               // nodes.forEach(n => {
+               //    n.link = null;
+               //    n.nodes = null;
+               //    n.__threeObj = null;
+               // });
+               // console.log(nodes[0]);
+               // console.log(links[0]);
+               // links = links.filter(l => l.source.id == nodeId || l.source.id.indexOf(nodeId) != 0);
+               // nodes = nodes.filter(n => n.id == nodeId || n.id.indexOf(nodeId) != 0);
+               // this.graph.graphData({ nodes, links });
+               // console.log(`ns=${this.initData.nodes.length},ls=${this.initData.links.length}`);
+               // links = links.filter(l => l.source !== node && l.target !== node); // Remove links attached to node
+               // nodes.splice(node.id, 1); // Remove node
+               // nodes.forEach((n, idx) => { n.id = idx; }); // Reset node ids to array index
+               // Graph.graphData({ nodes, links });
+            },
+            // 获取节点颜色
             getNodeColor: function (node) {
                // 高亮
                if (highlightNodes.indexOf(node) !== -1) {
@@ -253,6 +332,7 @@
                }
                this.updateGeometries();
                // 显示节点信息
+               this.infoBox.node = node;
                this.infoBox.content = `${node.user}: ${node.description}`;
                this.infoBox.show = true;
             },
@@ -276,144 +356,6 @@
          seedMovement: true
       });
    </script>
-   <!-- 星空数据 -->
-   <script>
-      // function openjson(n) {
-      //    // if (n.length > 0) {
-      //    //    Graph.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' });
-      //    //    return;
-      //    // }
-      //    if (n.length == 0) {
-      //       Graph.jsonUrl(`../datasets/blocks${n}.json`);
-      //    } else {
-      //       Graph.nodeColor(node => {
-      //          var color = mapColors[node.type];
-      //          return color ? color : '#000000';
-      //       })
-      //    }
-      // }
-      // let highlightColor = '#ffffff';
-      // let ignoreColor = '#111111';
-      // let mapColors = {
-      //    0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: '#ffff00', 4: '#ff00ff'
-      // }
-      // let currentType = null;
-      // let highlightNodes = [];
-      // let highlightLinks = [];
-      // const elem = document.getElementById('3d-graph');
-      // const Graph = ForceGraph3D()(elem)
-      //    .jsonUrl('../datasets/blocks.json')
-      //    .enableNodeDrag(false)
-      //    //.nodeColorByType({ 0: '#ff0000', 1: '#00ff00', 2: '#0000ff', 3: 'ffff00', 4: 'ff00ff' })
-      //    // .nodeAutoColorBy('user')
-      //    .nodeLabel(node => `${node.user}: ${node.description}`)
-      //    .linkWidth(link => highlightLinks.indexOf(link) !== -1 ? 4 : 1)
-      //    .linkDirectionalParticles(link => highlightLinks.indexOf(link) !== -1 ? 4 : 0)
-      //    .linkDirectionalParticleWidth(4)
-      //    .nodeColor(node => {
-      //       // 高亮
-      //       if (highlightNodes.indexOf(node) !== -1) {
-      //          return highlightColor;
-      //       } else {
-      //          if (currentType != null) {
-      //             // 非当前类型
-      //             if (currentType != node.type) {
-      //                return ignoreColor;
-      //             }
-      //          }
-      //       }
-      //       let flt = g_Filters.find(i => i.value == node.type);
-      //       return flt ? flt.bgColor : null;
-      //       // return mapColors[node.type];
-      //    })
-      //    .onNodeHover(node => {
-      //       if (highlightNodes.indexOf(node) !== -1) return;// no state change
-      //       // 还原
-      //       reset_nodes();
-      //       highlightLinks = [];
-      //       // 高亮
-      //       var i = node;
-      //       while (i) {
-      //          highlightNodes.push(i);
-      //          if (!i.link) break;
-      //          highlightLinks.push(i.link);
-      //          if (!i.link.target || i === i.link.target) break;
-      //          i = i.link.target;
-      //       }
-      //       highlight_nodes();
-      //       updateGeometries();
-      //    })
-      //    .onLinkHover(link => {
-      //       if (highlightLinks.indexOf(link) !== -1) return;
-      //       highlightLinks = link ? [link] : [];// 边
-      //       reset_nodes();
-      //       highlightNodes = link ? [link.source, link.target] : [];// 首尾点
-      //       highlight_nodes();
-      //       updateGeometries();
-      //    })
-      //    // 选中聚焦
-      //    .onNodeClick(node => {
-      //       const distance = 50;
-      //       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-      //       Graph.cameraPosition(
-      //          { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
-      //          node, // lookAt ({ x, y, z })
-      //          3000  // ms transition duration
-      //       );
-      //    })
-
-
-      // 高亮
-      function highlight_nodes() {
-         highlightNodes.forEach(node => {
-            node.oldColor = node.color;
-            node.color = 'rgb(255,0,0,1)';
-         });
-      }
-
-      // 重置
-      function reset_nodes() {
-         highlightNodes.forEach(node => node.color = node.oldColor);
-         highlightNodes = [];
-      }
-
-      function updateGeometries() {
-         Graph.nodeRelSize(4); // trigger update of 3d objects in scene
-      }
-   </script>
 </body>
 
 </html>
-
-<!-- <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" :collapse="false">
-               <el-submenu index="1">
-                  <template slot="title">
-                     <i class="el-icon-location"></i>
-                     <span slot="title">Navigator One</span>
-                  </template>
-                  <el-menu-item-group>
-                     <span slot="title">Group One</span>
-                     <el-menu-item index="1-1">item one</el-menu-item>
-                     <el-menu-item index="1-2">item two</el-menu-item>
-                  </el-menu-item-group>
-                  <el-menu-item-group title="Group Two">
-                     <el-menu-item index="1-3">item three</el-menu-item>
-                  </el-menu-item-group>
-                  <el-submenu index="1-4">
-                     <span slot="title">item four</span>
-                     <el-menu-item index="1-4-1">item one</el-menu-item>
-                  </el-submenu>
-               </el-submenu>
-               <el-menu-item index="2">
-                  <i class="el-icon-menu"></i>
-                  <span slot="title">Navigator Two</span>
-               </el-menu-item>
-               <el-menu-item index="3" disabled>
-                  <i class="el-icon-document"></i>
-                  <span slot="title">Navigator Three</span>
-               </el-menu-item>
-               <el-menu-item index="4">
-                  <i class="el-icon-setting"></i>
-                  <span slot="title">Navigator Four</span>
-               </el-menu-item>
-            </el-menu> -->
