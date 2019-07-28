@@ -1,5 +1,5 @@
 <script>
-   var MAX_CHILD = 10;
+   var MAX_CHILD = 2;
    var TREE_DEPTH = 3;
    var nodes = [];
    var links = [];
@@ -16,14 +16,16 @@
 
    // 创建子节点和边
    function createChild(parent, depth, nodes, links) {
-      if (depth > TREE_DEPTH) return;
+      if (depth >= TREE_DEPTH) return;
       var count = parent ? Math.floor(Math.random() * MAX_CHILD) : 1;
       for (var i = 0; i < count; i++) {
+         let id = nodes.length;
+         //let id = parent ? `${parent.id}-${i}` : `${i}`;
          // 创建点
          var child = {
-            id: nodes.length,
-            user: `user${nodes.length}`,
-            description: `user${nodes.length}`,
+            id: id,
+            user: `user${id}`,
+            description: `user${id}`,
             type: i % 5,
             level: depth
          }

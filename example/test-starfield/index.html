@@ -68,8 +68,8 @@
                         <span>{{infoBox.content}}</span>
                         <el-divider></el-divider>
                         <el-row>
-                           <el-button type="text" @click="openNode">展开节点</el-button>
-                           <el-button type="text" @click="closeNode">关闭节点</el-button>
+                           <el-button type="text" :disabled="!canNodeOpen()" @click="openNode">展开节点</el-button>
+                           <el-button type="text" :disabled="!canNodeClose()" @click="closeNode">关闭节点</el-button>
                         </el-row>
                      </div>
                   </div>
@@ -118,6 +118,20 @@
             });
          },
          methods: {
+            // 节点是否可打开
+            canNodeOpen: function () {
+               let node = this.infoBox.node;
+               if (!node) return false;
+               let nodeId = node.id;
+               if (node.nodes) return false;
+               return null != this.initData.links.find(l => l.target == nodeId || l.target.id == nodeId);
+            },
+            // 节点是否可关闭
+            canNodeClose: function () {
+               let node = this.infoBox.node;
+               if (!node) return false;
+               return node.nodes != null;
+            },
             // 初始化场景
             initScene: function (json) {
                let elem = document.getElementById('3d-graph');
@@ -168,13 +182,19 @@
                   ))
             },
             // 显示/隐藏节点
-            showNode: function (node, visible) {
-               if (!node.nodes) return;
-               node.nodes.forEach(child => {
-                  child.__threeObj.visible = visible;
-                  child.link.__lineObj.visible = visible;
-                  this.showNode(child);
-               })
+            // showNode: function (node, visible) {
+            //    if (!node.nodes) return;
+            //    node.nodes.forEach(child => {
+            //       child.__threeObj.visible = visible;
+            //       child.link.__lineObj.visible = visible;
+            //       this.showNode(child);
+            //    })
+            // },
+            // 清空节点
+            clearNode: function (node) {
+               delete node.link;
+               delete node.nodes;
+               // delete n.__threeObj;
             },
             // 打开节点
             openNode: function () {
@@ -219,14 +239,13 @@
                let { nodes, links } = this.graph.graphData();
                let rmNodes = nodes.filter(n => isChildNode(node, n));
                // rmNodes.forEach(n => {
-               //    delete n.link;
-               //    delete n.nodes;
-               //    delete n.__threeObj;
+               //    this.clearNode(n);
                // });
                nodes = nodes.filter(n => !rmNodes.find(r => r.id == n.id));
                links = links.filter(l => !rmNodes.find(r => r.id == l.source.id));
                this.graph.graphData({ nodes, links });
                this.unHighlight();
+               this.clearNode(node);
                // nodes = nodes.filter(n => !isChildNode(node, n));
                // links = links.filter(l => !isChildNode(node, l.source));
                // this.graph.graphData({ nodes, links });

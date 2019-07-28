@@ -1,5 +1,9 @@
 <head>
-  <style> body { margin: 0; } </style>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
 
   <script src="//unpkg.com/3d-force-graph"></script>
   <!--<script src="../../dist/3d-force-graph.js"></script>-->
@@ -10,24 +14,24 @@
 
   <script>
     const initData = {
-      nodes: [ {id: 0 } ],
+      nodes: [{ id: 0 }],
       links: []
     };
 
     const elem = document.getElementById("3d-graph");
 
     const Graph = ForceGraph3D()(elem)
-        .enableNodeDrag(false)
-        .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
-        .onNodeClick(removeNode)
-        .graphData(initData);
+      .enableNodeDrag(false)
+      .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
+      .onNodeClick(removeNode)
+      .graphData(initData);
 
     setInterval(() => {
       const { nodes, links } = Graph.graphData();
       const id = nodes.length;
       Graph.graphData({
         nodes: [...nodes, { id }],
-        links: [...links, { source: id, target: Math.round(Math.random() * (id-1)) }]
+        links: [...links, { source: id, target: Math.round(Math.random() * (id - 1)) }]
       });
     }, 1000);
 
