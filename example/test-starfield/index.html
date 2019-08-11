@@ -101,33 +101,31 @@
             searchText: '',// 查询字符串
             infoBox: { show: false, content: "hello" },// 是否显示信息框
             initData: null,// 初始数据
-            filtData: null,// 过滤数据
          },
          mounted: function () {
-            // this.initScene();
-            // return;
             fetch(this.activeSystem.value).then((r) => {
                return r.json();
             }).then((json) => {
                this.initData = json;
-               this.filtData = new Object();
-               this.filtData.nodes = json.nodes.filter(i => i.level < 2);
-               this.filtData.links = json.links.filter(i => this.filtData.nodes.find(j => j.id == i.source) && this.filtData.nodes.find(j => j.id == i.target));
-               //console.log(this.initData.nodes.length + "," + this.filtData.nodes.length);
-               this.initScene(this.filtData);
+               let nodes = json.nodes.filter(i => i.level < 2);
+               let links = json.links.filter(i => nodes.find(j => j.id == i.source) && nodes.find(j => j.id == i.target));
+               this.initScene({ nodes: nodes, links: links });
             });
          },
          methods: {
             // 节点是否可打开
             canNodeOpen: function () {
+               // return true;
                let node = this.infoBox.node;
                if (!node) return false;
                let nodeId = node.id;
                if (node.nodes) return false;
-               return null != this.initData.links.find(l => l.target == nodeId || l.target.id == nodeId);
+               let links = this.initData.links.find(l => l.target == nodeId || l.target.id == nodeId);
+               return null != links;
             },
             // 节点是否可关闭
             canNodeClose: function () {
+               return true;
                let node = this.infoBox.node;
                if (!node) return false;
                return node.nodes != null;
@@ -181,17 +179,10 @@
                      })
                   ))
             },
-            // 显示/隐藏节点
-            // showNode: function (node, visible) {
-            //    if (!node.nodes) return;
-            //    node.nodes.forEach(child => {
-            //       child.__threeObj.visible = visible;
-            //       child.link.__lineObj.visible = visible;
-            //       this.showNode(child);
-            //    })
-            // },
             // 清空节点
             clearNode: function (node) {
+               // node = this.graph.graphData().nodes.find(n => n.id == node.id);
+               // if (!node) return;
                delete node.link;
                delete node.nodes;
                // delete n.__threeObj;
@@ -206,19 +197,6 @@
                   nodes: [...nodes, ...refNodes],
                   links: [...links, ...refLinks]
                });
-               // let nodeId = this.infoBox.node.id;
-               // const { nodes, links } = this.graph.graphData();
-               // // nodes.forEach(i => {
-               // //    i.link = null;
-               // //    i.nodes = null;
-               // // });
-               // let refLinks = this.initData.links.filter(i => i.target == nodeId);
-               // let refNodes = this.initData.nodes.filter(i => refLinks.find(j => j.source == i.id));
-               // this.graph.graphData({
-               //    nodes: [...nodes, ...refNodes],
-               //    links: [...links, ...refLinks]
-               // });
-               // console.log(`ns=${this.initData.nodes.length},ls=${this.initData.links.length}`);
             },
             // 关闭节点
             closeNode: function () {
@@ -246,32 +224,6 @@
                this.graph.graphData({ nodes, links });
                this.unHighlight();
                this.clearNode(node);
-               // nodes = nodes.filter(n => !isChildNode(node, n));
-               // links = links.filter(l => !isChildNode(node, l.source));
-               // this.graph.graphData({ nodes, links });
-
-               // let node = this.infoBox.node;
-               // this.showNode(node, false);
-               // this.unHighlight();
-
-               // let nodeId = this.infoBox.id;
-               // let { nodes, links } = this.graph.graphData();
-               // nodes.find(n => n.id == nodeId).__threeObj.visible = false;
-               // nodes.forEach(n => {
-               //    n.link = null;
-               //    n.nodes = null;
-               //    n.__threeObj = null;
-               // });
-               // console.log(nodes[0]);
-               // console.log(links[0]);
-               // links = links.filter(l => l.source.id == nodeId || l.source.id.indexOf(nodeId) != 0);
-               // nodes = nodes.filter(n => n.id == nodeId || n.id.indexOf(nodeId) != 0);
-               // this.graph.graphData({ nodes, links });
-               // console.log(`ns=${this.initData.nodes.length},ls=${this.initData.links.length}`);
-               // links = links.filter(l => l.source !== node && l.target !== node); // Remove links attached to node
-               // nodes.splice(node.id, 1); // Remove node
-               // nodes.forEach((n, idx) => { n.id = idx; }); // Reset node ids to array index
-               // Graph.graphData({ nodes, links });
             },
             // 获取节点颜色
             getNodeColor: function (node) {
